@@ -1,0 +1,30 @@
+#!/bin/sh
+
+REPO_URL="/Users/rene/Develop/git/jenkinsbeispiel.git"
+BRANCH_NAME="master"
+JENKINS_HOST="localhost"
+JENKINS_PORT="8080"
+
+JENKINS_NOTIFY_URL="http://$JENKINS_HOST:$JENKINS_PORT/git/notifyCommit?url=$REPO_URL"
+
+notifyJenkins()
+{
+  refname="$1"
+
+  if [ "refs/heads/$BRANCH_NAME" == "$1" ]; then
+
+    echo "notify jenkins for $REPO_URL"
+
+    curl $JENKINS_NOTIFY_URL > /dev/null 2>&1
+  fi
+}
+
+if [ -n "$1" ]; then
+  # Output to the terminal in command line mode - if someone wanted to
+  notifyJenkins $1
+else
+  while read oldrev newrev refname
+  do
+    notifyJenkins $refname || continue
+  done
+fi
